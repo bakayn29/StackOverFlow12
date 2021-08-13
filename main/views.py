@@ -1,14 +1,28 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 
 from .models import *
+from .permissions import IsAuthorPermission
 from .serializers import *
 
 
-class ProblemViewSet(ModelViewSet):
+class PermissionMixin:
+    def get_permissions(self):
+        if self.action == 'create':
+            permissions = [IsAuthenticated, ]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            permissions = [IsAuthorPermission, ]
+        else:
+            permissions = []
+        return [permission() for permission in permissions]
+
+
+class ProblemViewSet(PermissionMixin, ModelViewSet):
     queryset = Problem.objects.all()
     serializer_class = ProblemSerializer
+    # http_method_names = ['GET', 'POST', 'PUT', 'DELETE']
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -16,7 +30,7 @@ class ProblemViewSet(ModelViewSet):
         return context
 
 
-class ReplyViewSet(ModelViewSet):
+class ReplyViewSet(PermissionMixin, ModelViewSet):
     queryset = Reply.objects.all()
     serializer_class = ReplaySerializer
 
@@ -26,7 +40,7 @@ class ReplyViewSet(ModelViewSet):
         return context
 
 
-class CommentViewSet(ModelViewSet):
+class CommentViewSet(PermissionMixin, ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 

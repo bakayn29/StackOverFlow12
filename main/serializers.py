@@ -19,6 +19,7 @@ class ProblemSerializer(serializers.ModelSerializer):
         representation['images'] = ImageSerializer(instance.images.all(),
                                                    many=True).data
         action = self.context.get('action')
+        print(action)
         if action == 'list':
             representation['replies'] = instance.replies.count()
         elif action == 'retrieve':
@@ -84,9 +85,9 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request')
-        comments = Comment.objects.create(
+        comment = Comment.objects.create(
             author=request.user,
             **validated_data
         )
-        return comments
+        return comment
 
