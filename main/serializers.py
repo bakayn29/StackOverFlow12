@@ -10,6 +10,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 class ProblemSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.email')
+
     class Meta:
         model = Problem
         fields = ('id', 'title', 'description', 'author')
